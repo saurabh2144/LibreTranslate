@@ -34,7 +34,6 @@ WORKDIR /app
 COPY --from=builder --chown=1032:1032 /app/venv/bin/ltmanage /usr/bin/
 
 RUN if [ "$with_models" = "true" ]; then  \
-  # initialize the language models
   if [ ! -z "$models" ]; then \
   ./venv/bin/python scripts/install_models.py --load_only_lang_codes "$models";   \
   else \
@@ -43,4 +42,7 @@ RUN if [ "$with_models" = "true" ]; then  \
   fi
 
 EXPOSE 5000
-ENTRYPOINT [ "./venv/bin/libretranslate", "--host", "*" ]
+
+# ⚠️ Render will inject PORT env var, use it in CMD
+CMD ["sh", "-c", "./venv/bin/libretranslate --host 0.0.0.0 --port ${PORT}"]
+
